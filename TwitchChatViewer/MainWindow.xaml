@@ -1,0 +1,32 @@
+﻿<Window x:Class="TwitchChatViewer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TwitchChatViewer"
+        mc:Ignorable="d"
+        Title="TwitchChatViewer" Height="569.424" Width="312.81">
+    <Grid Margin="0,0,2,0" Name="supaGRID">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="28" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <DockPanel Grid.Column="0" Grid.Row="0">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_Настройки">
+                    <MenuItem Header="Сбросить чат" Click="MenuItem_Click"/>
+                </MenuItem>
+            </Menu>
+            <StackPanel></StackPanel>
+        </DockPanel>
+        <ScrollViewer x:Name="MainScrollViewer" Margin="10,37,10,10" VerticalScrollBarVisibility="Hidden" Grid.Column="0" Grid.Row="2">
+            <StackPanel x:Name="MessageStackPanel" VerticalAlignment="Bottom"/>
+        </ScrollViewer>
+        <Button IsEnabled="True" Grid.Column="0" Grid.Row="1" Content="Запустить" Margin="0,3,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="71" Click="Button_Click_2" Name="subutton" Height="23"/>
+        <TextBox Foreground="Black" IsReadOnly="False"  Grid.Column="0" Grid.Row="1" Height="23" Margin="10,3,86,0" TextWrapping="Wrap" Text="Название канала" VerticalAlignment="Top" Name="nickTB"/>
+    </Grid>
+</Window>
