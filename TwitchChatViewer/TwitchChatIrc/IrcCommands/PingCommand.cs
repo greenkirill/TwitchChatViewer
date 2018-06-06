@@ -18,5 +18,9 @@ namespace TwitchChatViewer.TwitchChatIrc {
                 Str = space_split[0];
             }
         }
+
+        public override string ToString() {
+            return $"PING {Str}";
+        }
     }
 }

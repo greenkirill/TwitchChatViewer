@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TwitchChatViewer.TwitchChatIrc {
-    class IrcPipe : IDisposable  {
+    class IrcPipe : IDisposable {
 
         private NetworkStream stream;
         private StreamReader reader;
@@ -16,9 +16,8 @@ namespace TwitchChatViewer.TwitchChatIrc {
         public IrcPipe(NetworkStream stream) {
             this.stream = stream;
             reader = new StreamReader(stream);
-            writer = new StreamWriter(stream) { NewLine = "\r\n", AutoFlush = true};
+            writer = new StreamWriter(stream) { NewLine = "\r\n", AutoFlush = true };
         }
-        
 
         public void WriteLine(string str) {
             writer.WriteLine(str);
@@ -27,18 +26,21 @@ namespace TwitchChatViewer.TwitchChatIrc {
         public IEnumerable<string> ReadLines() {
             while (true) {
                 string line = reader.ReadLine();
-                if (line != null)
+                if (line != null) {
                     yield return line;
+                }
             }
         }
 
         public void Send(params IrcCommand[] commands) {
-            for (int i = 0; i < commands.Length; i++) 
+            for (int i = 0; i < commands.Length; i++) {
+                SLog.Log("DEBUG_IrcSend", commands[i].ToString());
                 writer.WriteLine(commands[i].ToString());
+            }
         }
 
         #region IDisposable Support
-        private bool disposedValue = false; 
+        private bool disposedValue = false;
 
         protected virtual void Dispose(bool disposing) {
             if (!disposedValue) {
@@ -57,7 +59,7 @@ namespace TwitchChatViewer.TwitchChatIrc {
         ~IrcPipe() {
             Dispose(false);
         }
-        
+
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);

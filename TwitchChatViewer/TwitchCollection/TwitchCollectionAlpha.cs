@@ -82,12 +82,24 @@ namespace TwitchChatViewer.Collection {
 
         }
 
+        public static bool DownloadEmoteN(int id, int N = 10) {
+            if (File.Exists($"emotes/{id}.png"))
+                return true;
+            var url = $"http://static-cdn.jtvnw.net/emoticons/v1/{id}/1.0";
+            for (int i = 0; i < N; i++) {
+                if (DownloadEmote(url, "emotes/" + id + ".png"))
+                    return true;
+            }
+            return false;
+        }
+
         public static bool DownloadEmoteV1(int id) {
             if (File.Exists($"emotes/{id}.png"))
                 return true;
             var url = $"http://static-cdn.jtvnw.net/emoticons/v1/{id}/1.0";
             return DownloadEmote(url, "emotes/" + id + ".png");
         }
+
         public static bool DownloadEmoteV1(TwitchEmoteMessage emote) {
             return DownloadEmoteV1(emote.Emote.Id);
         }
@@ -98,7 +110,9 @@ namespace TwitchChatViewer.Collection {
             HttpWebResponse response;
             try {
                 response = (HttpWebResponse)request.GetResponse();
-            } catch (Exception) {
+            } catch (Exception e) {
+                SLog.Log("ERROR_DownloadEmote", uri, fileName);
+                SLog.Log("ERROR_DownloadEmote", e.ToString());
                 return false;
             }
 
@@ -122,8 +136,10 @@ namespace TwitchChatViewer.Collection {
                     } catch { flag++; }
                 }
                 return false;
-            } else
+            } else {
+                SLog.Log("DEBUG_DownloadEmote", uri, response.StatusCode.ToString(), response.ToString(), response.ContentType.ToString());
                 return false;
+            }
         }
     }
 }

@@ -9,7 +9,7 @@ using System.Net;
 using System.Threading;
 
 namespace TwitchChatViewer {
-    class MsgBuilder_TwitchEmotes :MsgBuilder {
+    class MsgBuilder_TwitchEmotes : MsgBuilder {
 
         private bool correct = true;
 

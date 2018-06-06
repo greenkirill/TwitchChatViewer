@@ -181,7 +181,40 @@ namespace TwitchChatViewer {
             }
         }
 
+        public List<(string, string, string)> DownloadBTTVEmotes(string channel = "") {
+            var url = channel == "" ? "https://api.betterttv.net/2/emotes" : $"https://api.betterttv.net/2/channels/{channel}";
+            var str = "";
+            using (var webClient = new WebClient()) {
+                str = webClient.DownloadString(url);
+            }
+            Directory.CreateDirectory($"emotes");
+            var emts = new List<(string, string, string)>();
+            dynamic ret = JsonConvert.DeserializeObject(str);
+            if (ret.status != 200) return emts;
+            dynamic emotes = ret.emotes;
+            foreach (var emt in emotes) {
+                emts.Add((emt.id, emt.code, emt.imageType));
+            }
+            Task.Run(() => {
+                foreach (var emt in emotes) {
+                    DownloadImage($"https://cdn.betterttv.net/emote/{emt.id}/1x",
+                        $"emotes/{emt.id}.{emt.imageType}");
+                }
+            });
+            return emts;
+        }
 
+        private string DownloadStringWOHeaders(string url) {
+            using (var webClient = new WebClient()) {
+                try {
+                    var q = webClient.DownloadData(url);
+                    return System.Text.Encoding.Default.GetString(q);
+                    return webClient.DownloadString(url);
+                } catch (Exception e) {
+                    return "";
+                }
+            }
+        }
 
 
     }

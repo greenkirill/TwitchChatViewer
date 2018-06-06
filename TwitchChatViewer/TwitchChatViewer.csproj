@@ -64,6 +64,7 @@
     <Compile Include="Privmsg.cs" />
     <Compile Include="PrivmsgTextBlock_Alpha.cs" />
     <Compile Include="PrivmsgTextBlock_Beta.cs" />
+    <Compile Include="SLog.cs" />
     <Compile Include="TwitchChatIrc\IrcCommands\CapabilityCommand.cs" />
     <Compile Include="TwitchChatIrc\IrcCommands\IrcCommand.cs" />
     <Compile Include="TwitchChatIrc\IrcCommands\JoinCommand.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="TwitchChatIrc\IrcCommands\NickCommand.cs" />
     <Compile Include="TwitchChatIrc\IrcCommands\PassCommand.cs" />
     <Compile Include="TwitchChatIrc\IrcCommands\PingCommand.cs" />
+    <Compile Include="TwitchChatIrc\IrcCommands\PongCommand.cs" />
     <Compile Include="TwitchChatIrc\IrcCommands\PrivmsgCommand.cs" />
     <Compile Include="TwitchChatIrc\IrcCommands\PrivmsgTwitchParams.cs" />
     <Compile Include="TwitchChatIrc\IrcCommands\Range.cs" />
@@ -83,6 +85,7 @@
     <Compile Include="TwitchChatIrc\TwitchIrc.cs" />
     <Compile Include="TwitchChatIrc\TwitchIrcServerMessage.cs" />
     <Compile Include="TwitchCollection\MsgBuilder.cs" />
+    <Compile Include="TwitchCollection\MsgBuilder_BTVEmotes.cs" />
     <Compile Include="TwitchCollection\MsgBuilder_TwitchBadges.cs" />
     <Compile Include="TwitchCollection\MsgBuilder_TwitchEmotes.cs" />
     <Compile Include="TwitchCollection\TwitchCollectionAlpha.cs" />

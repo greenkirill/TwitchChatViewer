@@ -25,7 +25,10 @@ namespace TwitchChatViewer {
         private TwitchCollectionAlpha tc;
         private TwitchIrc twitchIrc;
         private MsgBuilder_Collection msgBuilder_Collection;
-
+        private const int N = 50;
+        private PrivmsgTextBlock_Beta[] messages = new PrivmsgTextBlock_Beta[N];
+        private List<PrivmsgTextBlock_Beta> blanks = new List<PrivmsgTextBlock_Beta>();
+        private int iter = 0;
         private string Channel = "c_a_k_e";
         public MainWindow() {
             InitializeComponent();
@@ -44,19 +47,46 @@ namespace TwitchChatViewer {
             scrollViewerBindingSwitch = !scrollViewerBindingSwitch;
         }
 
+        private void BlankImprove(PrivmsgTextBlock_Beta pm) {
+            foreach (var bl in pm.Blanks) {
+                TwitchCollectionAlpha.DownloadEmoteN(bl.Item1);
+            }
+            Dispatcher.Invoke(() => {
+                foreach (var bl in pm.Blanks) {
+                    pm.Textblock.Inlines.Remove(bl.Item3);
+                    var ret = pm.GetIUC($"emotes/{bl.Item1}.png");
+                    pm.Textblock.Inlines.InsertAfter(bl.Item2, ret.Item1);
+                }
+            });
+        }
+
+
         private void Privmsg_action(PrivmsgCommand msg) {
             if (!twitchIrc.isRun)
                 return;
-            Parallel.ForEach(msg.Params.Emotes, a => {
-                TwitchCollectionAlpha.DownloadEmoteV1(a);
-            });
-            var privmsg = new Privmsg(msg.Text);
-            privmsg = msgBuilder_Collection.DoAllBuilders(privmsg, msg);
-            Dispatcher.Invoke(() => {
-                var tb = new PrivmsgTextBlock_Beta(privmsg, Channel, msg);
-                MessageStackPanel.Children.Add(tb.Textblock);
-                if (scrollViewerBindingSwitch)
-                    MainScrollViewer.ScrollToBottom();
+            Task.Run(() => {
+                Task.Run(() => {
+                    Parallel.ForEach(msg.Params.Emotes, a => {
+                        TwitchCollectionAlpha.DownloadEmoteV1(a);
+                    });
+                });
+                Thread.Sleep(50);
+                var privmsg = new Privmsg(msg.Text);
+                privmsg = msgBuilder_Collection.DoAllBuilders(privmsg, msg);
+                Dispatcher.Invoke(() => {
+                    var tb = new PrivmsgTextBlock_Beta(privmsg, Channel, msg);
+                    try {
+                        MessageStackPanel.Children.Remove(messages[iter].Textblock);
+                    } catch { }
+                    messages[iter] = tb;
+                    MessageStackPanel.Children.Add(messages[iter].Textblock);
+                    var iiter = iter;
+                    if (!messages[iter].EmoteLoaded)
+                        Task.Run(() => { BlankImprove(messages[iiter]); });
+                    iter = (iter + 1) % N;
+                    if (scrollViewerBindingSwitch)
+                        MainScrollViewer.ScrollToBottom();
+                });
             });
         }
 
@@ -69,36 +99,7 @@ namespace TwitchChatViewer {
                     MainScrollViewer.ScrollToBottom();
             });
         }
-
-
-        private void Button_Click_1(object sender, RoutedEventArgs e) {
-            foreach (var tb in tbList) {
-                var last = tb.Textblock.Inlines.FirstInline;
-                var next = tb.Textblock.Inlines.FirstInline;
-
-                while ((next = last.NextInline) != null) {
-                    if (next is InlineUIContainer) {
-                        if ((((next as InlineUIContainer).Child as Image).Source as BitmapImage).UriSource.ToString() == "emotes/blank.png") {
-                            var qq = 3;
-                        }
-                        tb.Textblock.Inlines.Remove(next);
-                        tb.Textblock.Inlines.InsertAfter(last, tb.GetIUC(-1));
-                    }
-                    last = next;
-                }
-
-
-                //foreach (var item in tb.Textblock.Inlines) {
-                //    if (item.GetType() == typeof(InlineUIContainer)) {
-                //        tb.Textblock.Inlines.
-                //        item = tb.GetIUC(-1);
-                //    }
-                //}
-            }
-        }
-
         
-
         private void Button_Click_2(object sender, RoutedEventArgs e) {
 
             MessageStackPanel.Children.Clear();
@@ -112,10 +113,15 @@ namespace TwitchChatViewer {
                 IsBackground = true
             };
             irc_thread.Start();
+            var updater = new Updater("9tre3zr325pj4zjkwfmfyq3mg1jjgc", Channel);
+            var bttvem1 = updater.DownloadBTTVEmotes();
+            var bttvem2 = updater.DownloadBTTVEmotes(Channel);
             msgBuilder_Collection = new MsgBuilder_Collection();
             msgBuilder_Collection.BuilderList.Add(new MsgBuilder_TwitchEmotes());
             msgBuilder_Collection.BuilderList.Add(new MsgBuilder_TwitchBadges());
-            var updater = new Updater("9tre3zr325pj4zjkwfmfyq3mg1jjgc", Channel);
+            msgBuilder_Collection.BuilderList.Add(new MsgBuilder_BTVEmotes(bttvem1));
+            if (bttvem2.Count > 0)
+                msgBuilder_Collection.BuilderList.Add(new MsgBuilder_BTVEmotes(bttvem2));
             Directory.CreateDirectory("emotes");
             var upTask = Task.Factory.StartNew(() => {
                 updater.InitChannelInfo();

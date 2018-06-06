@@ -21,7 +21,7 @@ namespace TwitchChatViewer.TwitchChatIrc {
         public bool isRun { get { return retry; } }
 
         public Action<PrivmsgCommand> on_privmsg { get; set; }
-        
+
         public TwitchIrc(string nick, string pass, string chanel) {
             Nick = nick;
             Pass = pass;
@@ -44,6 +44,7 @@ namespace TwitchChatViewer.TwitchChatIrc {
             }
         }
 
+
         public void Start() {
             lock (gate) {
                 retry = true;
@@ -58,12 +59,19 @@ namespace TwitchChatViewer.TwitchChatIrc {
                             if (line.Command is PrivmsgCommand) {
                                 on_privmsg.Invoke(line.Command as PrivmsgCommand);
                             }
+                            else if(line.Command is PingCommand) {
+                                Pong(pipe, line.Command as PingCommand);
+                            }
+                            if (!(line.Command is PrivmsgCommand)) {
+                                SLog.Log("DEBUG_IrcRead", line.ToString());
+                            }
                             if (!retry)
                                 break;
                         }
                     }
                 }
                 catch (Exception e) {
+                    SLog.Log("ERROR_Irc", e.ToString());
                     Console.WriteLine(e.ToString());
                 }
             } while (retry);
@@ -85,6 +93,9 @@ namespace TwitchChatViewer.TwitchChatIrc {
                 new CapabilityCommand("twitch.tv/tags"));
         }
 
+        private void Pong(IrcPipe pipe, PingCommand ping) {
+            pipe.Send(new PongCommand(ping)); 
+        }
 
         private void LogIn(IrcPipe pipe) {
             pipe.Send(

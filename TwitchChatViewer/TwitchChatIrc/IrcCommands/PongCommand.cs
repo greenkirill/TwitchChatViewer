@@ -5,15 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TwitchChatViewer.TwitchChatIrc {
-    class UnknownCommand : IrcCommand {
+    class PongCommand : IrcCommand {
         public string Text { get; private set; }
-
-        public UnknownCommand(string text) {
-            Text = text;
+        public PongCommand(string str) {
+            Text = str;
+        }
+        public PongCommand(PingCommand ping) {
+            Text = ping.Str;
         }
 
         public override string ToString() {
-            return Text;
+            return "PONG " + Text;
         }
+
     }
 }
